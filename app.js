@@ -9,6 +9,16 @@ var routes = require('./routes/index');
 
 var app = express();
 
+
+var server = require('http').createServer(app);
+var io = require('socket.io')(server, {origins: '*:*'});
+io.on('connection', function(){
+    console.log("connected client")
+});
+
+server.listen(4200);
+
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
