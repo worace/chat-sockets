@@ -4,11 +4,12 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var redis = require("redis");
+
 
 var routes = require('./routes/index');
 
 var app = express();
-
 
 var server = require('http').createServer(app);
 var io = require('socket.io')(server, {origins: '*:*'});
@@ -17,6 +18,20 @@ io.on('connection', function(){
 });
 
 server.listen(4200);
+
+var redisClient = redis.createClient();
+//note "message" in .on("message") here is is the type of event
+//we are attaching a notif to (rather than a channel or other identifier)
+//specific channel is handled with subscribe event below
+redisClient.on("message", function(channel, message) {
+    console.log("node received message on channel ", channel);
+    console.log("msg: ", message);
+    io.emit("message", message)
+});
+
+//"messages" here denotes which redis channel we are subbing to
+redisClient.subscribe("messages");
+
 
 
 // view engine setup
